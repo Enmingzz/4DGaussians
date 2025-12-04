@@ -3,6 +3,8 @@
 
 Please follow the [3D-GS](https://github.com/graphdeco-inria/gaussian-splatting) to install the relative packages.
 
+Pytorch is essential to install.
+
 ```bash
 git clone https://github.com/Enmingzz/4DGaussians.git
 cd 4DGaussians

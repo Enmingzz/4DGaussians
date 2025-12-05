@@ -24,7 +24,7 @@ class Scene:
 
     gaussians : GaussianModel
 
-    def __init__(self, args : ModelParams, gaussians : GaussianModel, load_iteration=None, shuffle=True, resolution_scales=[1.0], load_coarse=False):
+    def __init__(self, args : ModelParams, gaussians : GaussianModel, load_iteration=None, shuffle=True, resolution_scales=[1.0], load_coarse=False, _pruned=True):
         """b
         :param path: Path to colmap scene main folder.
         """
@@ -82,16 +82,25 @@ class Scene:
             scene_info = scene_info._replace(point_cloud=add_points(scene_info.point_cloud, xyz_max=xyz_max, xyz_min=xyz_min))
         self.gaussians._deformation.deformation_net.set_aabb(xyz_max,xyz_min)
         if self.loaded_iter:
-            self.gaussians.load_ply(os.path.join(self.model_path,
-                                                           "point_cloud",
-                                                           "iteration_" + str(self.loaded_iter),
-                                                           "point_cloud.ply"))
+            print("here zzzzzzzzzzzzz")
+            if _pruned:
+                self.gaussians.load_ply(os.path.join(self.model_path,
+                                                            "point_cloud",
+                                                            "iteration_" + str(self.loaded_iter),
+                                                            "point_cloud.ply"))
+            else:
+                self.gaussians.load_ply(os.path.join(self.model_path,
+                                                            "point_cloud",
+                                                            "iteration_" + str(self.loaded_iter),
+                                                            "pruned"+str(self.loaded_iter)+".ply"))
+            print(self.gaussians._xyz.shape[0], "Gaussians in the scene.")
             self.gaussians.load_model(os.path.join(self.model_path,
                                                     "point_cloud",
                                                     "iteration_" + str(self.loaded_iter),
-                                                   ))
+                                                ))
         else:
             self.gaussians.create_from_pcd(scene_info.point_cloud, self.cameras_extent, self.maxtime)
+        
 
     def save(self, iteration, stage):
         if stage == "coarse":

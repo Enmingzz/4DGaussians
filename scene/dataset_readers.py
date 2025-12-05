@@ -126,7 +126,16 @@ def fetchPly(path):
     vertices = plydata['vertex']
     positions = np.vstack([vertices['x'], vertices['y'], vertices['z']]).T
     colors = np.vstack([vertices['red'], vertices['green'], vertices['blue']]).T / 255.0
-    normals = np.vstack([vertices['nx'], vertices['ny'], vertices['nz']]).T
+    
+    # --- 修改开始: 添加 try-except 块 ---
+    try:
+        normals = np.vstack([vertices['nx'], vertices['ny'], vertices['nz']]).T
+    except ValueError:
+        print("Warning: Normals (nx, ny, nz) not found in PLY. Using dummy normals.")
+        # 如果没有法线，生成全 0 或者随机法线都可以，3DGS 初始化对这个不敏感
+        normals = np.zeros_like(positions)
+    # --- 修改结束 ---
+
     return BasicPointCloud(points=positions, colors=colors, normals=normals)
 
 def storePly(path, xyz, rgb):
@@ -284,7 +293,8 @@ def readCamerasFromTransforms(path, transformsfile, white_background, extension=
 
             norm_data = im_data / 255.0
             arr = norm_data[:,:,:3] * norm_data[:, :, 3:4] + bg * (1 - norm_data[:, :, 3:4])
-            image = Image.fromarray(np.array(arr*255.0, dtype=np.byte), "RGB")
+            img_uint8 = (np.clip(arr * 255.0, 0.0, 255.0)).astype(np.uint8)
+            image = Image.fromarray(img_uint8, "RGB")
             image = PILtoTorch(image,(800,800))
             fovy = focal2fov(fov2focal(fovx, image.shape[1]), image.shape[2])
             FovY = fovy 

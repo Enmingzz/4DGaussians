@@ -30,6 +30,7 @@ import lpips
 from utils.scene_utils import render_training_image
 from time import time
 import copy
+from mmengine.config import Config
 
 to8b = lambda x : (255*np.clip(x.cpu().numpy(),0,1)).astype(np.uint8)
 
@@ -416,7 +417,7 @@ if __name__ == "__main__":
     if args.configs:
         import mmcv
         from utils.params_utils import merge_hparams
-        config = mmcv.Config.fromfile(args.configs)
+        config = Config.fromfile(args.configs)
         args = merge_hparams(args, config)
     print("Optimizing " + args.model_path)
 

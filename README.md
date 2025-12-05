@@ -20,6 +20,17 @@ pip install -e submodules/simple-knn
 In our environment, we use pytorch=2.9.1+cu128.
 GPU: RTX 5090
 
+## potential problem for environment setting
+If you met problem with cuda (i.e. rasterization cuda in submodule), you need to add some c++ head files
+```
+#include <cstdint>
+#include <cstddef>
+using std::uint32_t;
+using std::uint64_t;
+using std::uintptr_t;
+```
+Since we used higher version of CUDA.
+
 ## Data preparation and train 
 Please find the instruction in https://github.com/hustvl/4DGaussians, the data preparation and training sub-section.
 

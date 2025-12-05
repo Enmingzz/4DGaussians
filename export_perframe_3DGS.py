@@ -89,19 +89,25 @@ print("Rendering " , args.model_path)
 if args.configs:
     import mmcv
     from utils.params_utils import merge_hparams
-    config = mmcv.Config.fromfile(args.configs)
+    try:
+        from mmengine.config import Config
+    except ImportError:
+        from mmcv import Config
+    config = Config.fromfile(args.configs)
     args = merge_hparams(args, config)
 # Initialize system state (RNG)
 safe_state(args.quiet)
 gaussians, scene = render_sets(model.extract(args), hyperparam.extract(args), args.iteration, pipeline.extract(args), args.skip_train, args.skip_test, args.skip_video)
+num_gaussians = gaussians.get_xyz.shape[0]
+print(f" Gaussians : {num_gaussians}")
 output_path = os.path.join(args.model_path,"gaussian_pertimestamp")
-os.makedirs(output_path,exist_ok=True)
-print("Computing Gaussians.")
-for index, viewpoint in enumerate(scene.getTestCameras()):
+# os.makedirs(output_path,exist_ok=True)
+# print("Computing Gaussians.")
+# for index, viewpoint in enumerate(scene.getTestCameras()):
     
-    points, scales_final, rotations_final, opacity_final, shs_final = get_state_at_time(gaussians, viewpoint)
-    feature_dc_shape = gaussians._features_dc.shape[1]
-    feature_rest_shape = gaussians._features_rest.shape[1]
-    gs_ply = init_3DGaussians_ply(points, scales_final, rotations_final, opacity_final, shs_final, [feature_dc_shape, feature_rest_shape])
-    gs_ply.write(os.path.join(output_path,"time_{0:05d}.ply".format(index)))
+#     points, scales_final, rotations_final, opacity_final, shs_final = get_state_at_time(gaussians, viewpoint)
+#     feature_dc_shape = gaussians._features_dc.shape[1]
+#     feature_rest_shape = gaussians._features_rest.shape[1]
+#     gs_ply = init_3DGaussians_ply(points, scales_final, rotations_final, opacity_final, shs_final, [feature_dc_shape, feature_rest_shape])
+#     gs_ply.write(os.path.join(output_path,"time_{0:05d}.ply".format(index)))
 print("done")
